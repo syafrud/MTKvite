@@ -6,10 +6,27 @@ import {
 import TButton from "./core/TButton";
 
 export default function SurveyListItem({ survey, onDeleteClick }) {
+  function getFileExtension(extension) {
+    if (!extension) {
+      return;
+    }
+
+    const lastDot = extension.lastIndexOf(".");
+    if (lastDot === -1) {
+      return extension; // Return the whole string if there's no dot
+    }
+
+    return extension.substring(lastDot + 1);
+  }
+
   return (
     <div className="flex flex-col py-4 px-6 shadow-md bg-white hover:bg-gray-50 h-[470px]">
-      <video className="w-full h-48 " controls>
-        <source src={survey.video_url} alt={survey.title} type="video/mp4" />
+      <video className="w-full h-48" controls>
+        <source
+          src={survey.video_url}
+          alt={survey.title}
+          type={`video/${getFileExtension(survey.extension)}`}
+        />
       </video>
       <h4 className="mt-4 text-lg font-bold">{survey.title}</h4>
       <div

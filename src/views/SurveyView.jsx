@@ -2,24 +2,77 @@ import { useState } from "react";
 import PageComponent from "../components/PageComponent";
 import { VideoCameraIcon } from "@heroicons/react/24/outline";
 import TButton from "../components/core/TButton";
+import axiosClient from "../axios";
+import { Navigate, useNavigate } from "react-router-dom";
 
 export default function SurveyView() {
+  const navigate = useNavigate();
   const [survey, setSurvey] = useState({
     title: "",
     slug: "",
-    status: false,
     description: "",
-    image: null,
+    video: null,
     video_url: null,
-    expire_date: "",
+    extension: "mp4",
     questions: [],
   });
-  const onImageChoose = () => {
-    console.log("On image choose");
+  const [error, setError] = useState("");
+
+  const onVideoChoose = (ev) => {
+    const file = ev.target.files[0];
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setSurvey({
+        ...survey,
+        video: file,
+        video_url: reader.result,
+        extension: getFileNameWithExt(ev),
+      });
+
+      ev.target.value = "";
+    };
+    reader.readAsDataURL(file);
   };
+
+  function getFileNameWithExt(event) {
+    if (
+      !event ||
+      !event.target ||
+      !event.target.files ||
+      event.target.files.length === 0
+    ) {
+      return;
+    }
+
+    const name = event.target.files[0].name;
+    const lastDot = name.lastIndexOf(".");
+
+    const ext = name.substring(lastDot + 1);
+
+    return ext;
+  }
+
   const onSubmit = (ev) => {
     ev.preventDefault();
-    console.log(ev);
+
+    const payload = { ...survey };
+    if (payload.video) {
+      payload.video = payload.video_url;
+    }
+    delete payload.video_url;
+    axiosClient
+      .post("/survey", payload)
+      .then((res) => {
+        console.log(res);
+        navigate("/surveys");
+      })
+      .catch((err) => {
+        if (err && err.response) {
+          setError(err.response.data.message);
+        }
+        console.log(err, err.response);
+      });
   };
 
   return (
@@ -27,23 +80,21 @@ export default function SurveyView() {
       <form action="#" method="POST" onSubmit={onSubmit}>
         <div className="shadow sm:overflow-hidden sm:rounded-md">
           <div className="space-y-6 bg-white px-4 py-5 sm:p-6">
-            {/* image */}
+            {error && (
+              <div className="bg-red-500 text-white py-3 px-3 ">{error}</div>
+            )}
+            {/* video */}
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                Photo
+                Video
               </label>
               <div className="mt-1 flex items-center">
                 {survey.video_url && (
-                  <video
-                    // src={survey.video_url}
-                    // alt=""
-                    // type="mp4"
-                    className="w-full h-48"
-                  >
+                  <video className="w-auto h-48 " controls>
                     <source
                       src={survey.video_url}
                       alt={survey.title}
-                      type="video/mp4"
+                      type={"video/" + survey.extension}
                     />
                   </video>
                 )}
@@ -60,13 +111,13 @@ export default function SurveyView() {
                     type="file"
                     accept="video/*"
                     className="absolute left-0 top-0 right-0 bottom-0 opacity-0"
-                    onChange={onImageChoose}
+                    onChange={onVideoChoose}
                   />
                   Change
                 </button>
               </div>
             </div>
-            {/* image */}
+            {/* video */}
             {/*Title*/}
             <div className="col-span-6 sm:col-span-3">
               <label

@@ -16,6 +16,7 @@ const tmpSurveys = [
     title: "TheCodeholic YouTube channel",
     slug: "thecodeholic-youtube-channel",
     status: true,
+    extension: ".mp4",
     description:
       "My name is Zura.<br>I am Web Developer with 9+ years of experience, free educational content creator, CTO, Lecturer and father of two wonderful daughters.<br><br>The purpose of the channel is to share my several years of experience with beginner developers.<br>Teach them what I know and make my experience as a lesson for others.",
     created_at: "2022-01-07 13:23:41",
