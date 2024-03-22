@@ -3,7 +3,8 @@ import PageComponent from "../components/PageComponent";
 import { VideoCameraIcon } from "@heroicons/react/24/outline";
 import TButton from "../components/core/TButton";
 import axiosClient from "../axios";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import SurveyQuestion from "../components/SurveyQuestion";
 
 export default function SurveyView() {
   const navigate = useNavigate();
@@ -75,6 +76,13 @@ export default function SurveyView() {
       });
   };
 
+  function onQuestionsUpdate(questions) {
+    setSurvey({
+      ...survey,
+      questions,
+    });
+  }
+
   return (
     <PageComponent title="Create New Surveys">
       <form action="#" method="POST" onSubmit={onSubmit}>
@@ -118,6 +126,7 @@ export default function SurveyView() {
               </div>
             </div>
             {/* video */}
+
             {/*Title*/}
             <div className="col-span-6 sm:col-span-3">
               <label
@@ -148,7 +157,6 @@ export default function SurveyView() {
               >
                 Description
               </label>
-              {/* <pre>{ JSON.stringify(survey, undefined, 2) }</pre> */}
               <textarea
                 name="description"
                 id="description"
@@ -161,6 +169,11 @@ export default function SurveyView() {
               ></textarea>
             </div>
             {/*Description*/}
+
+            <SurveyQuestion
+              questions={survey.questions}
+              onQuestionsUpdate={onQuestionsUpdate}
+            />
           </div>
 
           <div className="bg-gray-50 px-4 py-3 text-right sm:px-6">

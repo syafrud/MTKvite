@@ -4,6 +4,7 @@ const StateContext = createContext({
   currentUser: {},
   userToken: null,
   surveys: [],
+  questionTypes: [],
   setCurrentUser: () => {},
   setUserToken: () => {},
 });
@@ -193,6 +194,7 @@ export const ContextProvider = ({ children }) => {
     localStorage.getItem("TOKEN") || ""
   );
   const [surveys, setSurveys] = useState(tmpSurveys);
+  const [questionTypes] = useState(["select", "radio", "chechbox"]);
 
   const setUserToken = (token) => {
     if (token) {
@@ -211,6 +213,7 @@ export const ContextProvider = ({ children }) => {
         userToken,
         setUserToken,
         surveys,
+        questionTypes,
       }}
     >
       {children}
