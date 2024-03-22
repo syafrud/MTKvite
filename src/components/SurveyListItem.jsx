@@ -19,14 +19,14 @@ export default function SurveyListItem({ survey, onDeleteClick }) {
     return extension.substring(lastDot + 1);
   }
 
+  const videoType = getFileExtension(survey.extension)
+    ? `video/${getFileExtension(survey.extension)}`
+    : undefined;
+
   return (
     <div className="flex flex-col py-4 px-6 shadow-md bg-white hover:bg-gray-50 h-[470px]">
       <video className="w-full h-48" controls>
-        <source
-          src={survey.video_url}
-          alt={survey.title}
-          type={`video/${getFileExtension(survey.extension)}`}
-        />
+        <source src={survey.video_url} alt={survey.title} type={videoType} />
       </video>
       <h4 className="mt-4 text-lg font-bold">{survey.title}</h4>
       <div

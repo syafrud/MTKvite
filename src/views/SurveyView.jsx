@@ -14,7 +14,7 @@ export default function SurveyView() {
     description: "",
     video: null,
     video_url: null,
-    extension: "mp4",
+    extension: "",
     questions: [],
   });
   const [error, setError] = useState("");
