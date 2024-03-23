@@ -5,15 +5,22 @@ import TButton from "../components/core/TButton";
 import { useEffect, useState } from "react";
 import axiosClient from "../axios";
 import PaginationLinks from "../components/PaginationLinks";
+import router from "../router";
+import { useStateContext } from "../contexts/ContextProvider";
 
 export default function Surveys() {
-  // const { surveys } = useStateContext();
+  const { showToast } = useStateContext();
   const [surveys, setSurveys] = useState([]);
   const [meta, setMeta] = useState({});
   const [loading, setLoading] = useState(false);
 
-  const onDeleteClick = () => {
-    console.log("On Delete Click");
+  const onDeleteClick = (id) => {
+    if (window.confirm("Are you sure want to delete this survey")) {
+      axiosClient.delete(`/survey/${id}`).then(() => {
+        getSurveys();
+        showToast("The survey was deleted");
+      });
+    }
   };
 
   const onPageClick = (link) => {
@@ -47,6 +54,11 @@ export default function Surveys() {
       {loading && <div className="text-center text-l g">Loading...</div>}
       {!loading && (
         <div>
+          {surveys.length === 0 && (
+            <div className="py-8 text-center text-gray-700">
+              You don't have surveys created.
+            </div>
+          )}
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3">
             {surveys.map((survey) => (
               <SurveyListItem
@@ -56,7 +68,9 @@ export default function Surveys() {
               />
             ))}
           </div>
-          <PaginationLinks meta={meta} onPageClick={onPageClick} />
+          {surveys.length > 0 && (
+            <PaginationLinks meta={meta} onPageClick={onPageClick} />
+          )}
         </div>
       )}
     </PageComponent>

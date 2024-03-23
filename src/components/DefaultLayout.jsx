@@ -4,6 +4,7 @@ import { Bars3Icon, UserIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { NavLink, Navigate, Outlet } from "react-router-dom";
 import { useStateContext } from "../contexts/ContextProvider";
 import axiosClient from "../axios";
+import Toast from "./Toast";
 
 // const user = {
 // };
@@ -180,6 +181,8 @@ export default function DefaultLayout() {
         </Disclosure>
 
         <Outlet />
+
+        <Toast />
       </div>
     </>
   );
