@@ -35,11 +35,11 @@ export default function Login() {
   };
 
   return (
-    <>
-      <h2 className="mt-10 text-center text-3xl  font-bold leading-9 tracking-tight text-gray-900">
+    <div className="flex flex-col gap-2 bg-white p-10 rounded-3xl">
+      <h2 className=" text-center text-3xl  font-bold leading-9 tracking-tight text-gray-900">
         Sign in to your account
       </h2>
-      <p className="mt-2 text-center text-sm text-gray-600">
+      <p className=" text-center text-lg text-gray-600">
         Or{" "}
         <Link
           to="/signup"
@@ -48,7 +48,7 @@ export default function Login() {
           signup for free
         </Link>
       </p>
-      <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+      <div className=" sm:mx-auto sm:w-full sm:max-w-sm">
         {error.__html && (
           <div
             className="bg-red-500 rounded py-2 px-3 text-white"
@@ -116,6 +116,6 @@ export default function Login() {
           </div>
         </form>
       </div>
-    </>
+    </div>
   );
 }

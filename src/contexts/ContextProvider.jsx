@@ -18,7 +18,7 @@ export const ContextProvider = ({ children }) => {
     localStorage.getItem("TOKEN") || ""
   );
   const [surveys, setSurveys] = useState(tmpSurveys);
-  const [questionTypes] = useState(["select", "radio", "chechbox"]);
+  const [questionTypes] = useState(["select", "radio", "checkbox"]);
   const [toast, setToast] = useState({ message: "", show: false });
 
   const setUserToken = (token) => {

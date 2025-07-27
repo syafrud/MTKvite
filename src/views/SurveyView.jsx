@@ -1,6 +1,12 @@
 import { useEffect, useState } from "react";
 import PageComponent from "../components/PageComponent";
-import { VideoCameraIcon } from "@heroicons/react/24/outline";
+import {
+  LinkIcon,
+  PhotoIcon,
+  PlusCircleIcon,
+  TrashIcon,
+  VideoCameraIcon,
+} from "@heroicons/react/24/outline";
 import TButton from "../components/core/TButton";
 import axiosClient from "../axios";
 import { useNavigate, useParams } from "react-router-dom";
@@ -11,16 +17,20 @@ export default function SurveyView() {
   const { showToast } = useStateContext();
   const navigate = useNavigate();
   const { id } = useParams();
-
   const [survey, setSurvey] = useState({
     title: "",
     slug: "",
     description: "",
+    grade: "",
     video: null,
     video_url: null,
+    image: null,
+    image_url: null,
     extension: "",
     questions: [],
+    question_length: 0,
   });
+  const [selectedGrade, setSelectedGrade] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -36,6 +46,22 @@ export default function SurveyView() {
         extension: getFileExtension(ev),
       };
       setSurvey(updatedSurvey);
+
+      ev.target.value = "";
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const onImageChoose = (ev) => {
+    const file = ev.target.files[0];
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setSurvey({
+        ...survey,
+        image: file,
+        image_url: reader.result,
+      });
 
       ev.target.value = "";
     };
@@ -59,6 +85,7 @@ export default function SurveyView() {
 
     return ext;
   }
+
   const videoType = getFileExtension(survey.extension)
     ? `video/${getFileExtension(survey.extension)}`
     : undefined;
@@ -66,17 +93,30 @@ export default function SurveyView() {
   const onSubmit = (ev) => {
     ev.preventDefault();
 
-    const payload = { ...survey };
+    const payload = {
+      ...survey,
+      question_length: survey.questions.length,
+    };
+
     if (payload.video) {
       payload.video = payload.video_url;
     }
     delete payload.video_url;
+
+    if (payload.image) {
+      payload.image = payload.image_url;
+    }
+    delete payload.image_url;
+
+    console.log(payload);
     let res = null;
     if (id) {
       res = axiosClient.put(`/survey/${id}`, payload);
     } else {
+      console.log(payload);
       res = axiosClient.post("/survey", payload);
     }
+    console.log(payload);
     res
       .then((res) => {
         console.log(res);
@@ -101,6 +141,7 @@ export default function SurveyView() {
       questions,
     });
   }
+  const onDelete = () => {};
 
   useEffect(() => {
     setLoading(true);
@@ -115,55 +156,106 @@ export default function SurveyView() {
   }, []);
 
   return (
-    <PageComponent title={!id ? "Create New Surveys" : "Update Survey"}>
+    <PageComponent
+      buttons={
+        <div className="flex gap-2">
+          <TButton color="green" href={`/survey/public/${survey.slug}`}>
+            <LinkIcon className="h-4 w-4 mr-2" />
+            Exercise
+          </TButton>
+          <TButton color="red" onClick={onDelete}>
+            <TrashIcon className="h-4 w-4 mr-2" />
+            Delete
+          </TButton>
+        </div>
+      }
+    >
       {loading && <div className="text-center text-l g">Loading...</div>}
       {!loading && (
-        <form action="#" method="POST" onSubmit={onSubmit}>
+        <form
+          action="#"
+          method="POST"
+          onSubmit={onSubmit}
+          className="min-w-[80rem]"
+        >
           <div className="shadow sm:overflow-hidden sm:rounded-md">
             <div className="space-y-6 bg-white px-4 py-5 sm:p-6">
               {error && (
                 <div className="bg-red-500 text-white py-3 px-3 ">{error}</div>
               )}
-              {/* video */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Video
-                </label>
-                <div className="mt-1 flex items-center">
-                  {survey.video_url && (
-                    <video
-                      className="w-auto h-48 "
-                      controls
-                      key={survey.video_url}
+              <div className="flex flex-row gap-9">
+                {/* video */}
+                <div className="w-1/2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Video
+                  </label>
+                  <div className="mt-1 flex flex-col items-center gap-5">
+                    {survey.video_url && (
+                      <video
+                        className="w-full h-auto "
+                        controls
+                        key={survey.video_url}
+                      >
+                        <source
+                          src={survey.video_url}
+                          alt={survey.title}
+                          type={videoType}
+                        />
+                      </video>
+                    )}
+                    {!survey.video_url && (
+                      <span className="flex justify-center items-center text-gray-400 h-52 w-full overflow-hidden rounded bg-gray-100">
+                        <VideoCameraIcon className="w-8 h-8" />
+                      </span>
+                    )}
+                    <button
+                      type="button"
+                      className="relative ml-5 rounded-md border border-gray-300 bg-white py-2 px-3 text-sm font-medium leading-4 text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                     >
-                      <source
-                        src={survey.video_url}
-                        alt={survey.title}
-                        type={videoType}
+                      <input
+                        type="file"
+                        accept="video/*"
+                        className="absolute left-0 top-0 right-0 bottom-0 opacity-0"
+                        onChange={onVideoChoose}
                       />
-                    </video>
-                  )}
-                  {!survey.video_url && (
-                    <span className="flex justify-center items-center text-gray-400 h-52 w-1/3 overflow-hidden rounded bg-gray-100">
-                      <VideoCameraIcon className="w-8 h-8" />
-                    </span>
-                  )}{" "}
-                  <button
-                    type="button"
-                    className="relative ml-5 rounded-md border border-gray-300 bg-white py-2 px-3 text-sm font-medium leading-4 text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                  >
-                    <input
-                      type="file"
-                      accept="video/*"
-                      className="absolute left-0 top-0 right-0 bottom-0 opacity-0"
-                      onChange={onVideoChoose}
-                    />
-                    Change
-                  </button>
+                      Change
+                    </button>
+                  </div>
                 </div>
+                {/* video */}
+                {/*Image*/}
+                <div className="w-1/2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Photo
+                  </label>
+                  <div className="mt-1 flex flex-col items-center gap-5">
+                    {survey.image_url && (
+                      <img
+                        src={survey.image_url}
+                        alt=""
+                        className="w-full h-auto"
+                      />
+                    )}
+                    {!survey.image_url && (
+                      <span className="flex justify-center items-center text-gray-400 h-52 w-full overflow-hidden rounded bg-gray-100">
+                        <PhotoIcon className="w-8 h-8" />
+                      </span>
+                    )}
+                    <button
+                      type="button"
+                      className="relative ml-5 rounded-md border border-gray-300 bg-white py-2 px-3 text-sm font-medium leading-4 text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                    >
+                      <input
+                        type="file"
+                        className="absolute left-0 top-0 right-0 bottom-0 opacity-0"
+                        onChange={onImageChoose}
+                      />
+                      Change
+                    </button>
+                  </div>
+                </div>
+                {/*Image*/}
               </div>
-              {/* video */}
-
               {/*Title*/}
               <div className="col-span-6 sm:col-span-3">
                 <label
@@ -185,7 +277,6 @@ export default function SurveyView() {
                 />
               </div>
               {/*Title*/}
-
               {/*Description*/}
               <div className="col-span-6 sm:col-span-3">
                 <label
@@ -201,11 +292,38 @@ export default function SurveyView() {
                   onChange={(ev) =>
                     setSurvey({ ...survey, description: ev.target.value })
                   }
-                  placeholder="Describe your survey"
+                  placeholder="Describe your Video"
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                 ></textarea>
               </div>
               {/*Description*/}
+
+              {/*Jenjang*/}
+              <div className="col-span-6 sm:col-span-3">
+                <label
+                  htmlFor="grade"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Grade
+                </label>
+                <select
+                  name="grade"
+                  id="grade"
+                  value={survey.grade || ""}
+                  onChange={(ev) =>
+                    setSurvey({ ...survey, grade: ev.target.value })
+                  }
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                >
+                  <option value="">Select Grade</option>
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((grade) => (
+                    <option key={grade} value={grade}>
+                      Grade {grade}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              {/*Jenjang*/}
 
               <SurveyQuestion
                 questions={survey.questions}

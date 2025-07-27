@@ -14,7 +14,6 @@ export default function TButton({
     "flex",
     "items-center",
     "whitespace-nowrap",
-    "text-sm",
     "border",
     "border-2",
     "border-transparent",
@@ -56,6 +55,14 @@ export default function TButton({
           "bg-emerald-500",
           "hover:bg-emerald-600",
           "focus:ring-emerald-400",
+        ];
+        break;
+      case "blue":
+        classes = [
+          ...classes,
+          "bg-[#87CEEB]",
+          "hover:bg-[#6BB9F0]",
+          "focus:ring-[#6BB9F0]",
         ];
         break;
     }
